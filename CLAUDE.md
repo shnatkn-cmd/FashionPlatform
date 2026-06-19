@@ -34,15 +34,17 @@ git push origin main
 - **Asla** `.env` veya gerçek veritabanı kimlik bilgilerini commit etme (`.gitignore` ile korunuyor).
 - `--force` / `--no-verify` kullanma (kullanıcı açıkça istemedikçe).
 
-## Veritabanı (Hostinger MySQL)
-- Kimlik bilgileri kullanıcı tarafından **sonradan** verilecek. Geldiğinde:
-  1. `.env.example` → `.env` kopyala, `DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME` doldur.
-  2. `npm install` (mysql2 zaten bağımlılık).
-  3. `npm start` → `/health` endpoint'i DB bağlantısını doğrular.
-- Bağlantı kodu: `config/db.js` (lazy pool, env-driven). DB yapılandırılmadan da uygulama çalışır.
-- **Hedef:** "Her şey bu veritabanı ile yönetilecek." Anasayfadaki ve ileride eklenecek tüm dinamik içerik DB'ye taşınacak.
-- **Migrasyon noktası (seam):** `data/content.js`. Şu an placeholder veri döndürüyor; DB gelince fonksiyon imzalarını (async) koruyarak içlerini `db.query(...)` ile değiştir — `server.js` değişmeden çalışmaya devam eder.
-- DB geldikten sonra: anasayfada veritabanına geçirilmesi gereken içerikleri (kategoriler, öne çıkan ürünler, hero, bülten kayıtları vb.) tespit edip tabloları oluştur ve implement et.
+## Veritabanı (Hostinger MySQL) — BAĞLI ✅
+- **Durum:** Bağlantı kuruldu ve anasayfa veritabanından besleniyor.
+- **Sunucu:** `srv1764.hstgr.io` (IP: `82.197.82.108`), port `3306`. Veritabanı/kullanıcı: `u851420727_Fashion`.
+- **Kimlik bilgileri `.env` dosyasında** (git-ignored). Gerçek şifreyi **asla** commit etme, CLAUDE.md/README'ye yazma.
+- Yeni bir makineden bağlanırken: Hostinger panelinde **Remote MySQL** altına o makinenin genel IP'sini eklemek gerekebilir.
+- Bağlantı kodu: `config/db.js` (lazy pool, env-driven, utf8mb4). DB erişilemezse uygulama placeholder verilerle çalışmaya devam eder (çökmez).
+- **Şema + seed:** `db/schema.sql` ve `db/init.js`. Kurmak/yenilemek için: `npm run db:init` (idempotent — tablo varsa atlar, tablo boşsa seed eder).
+  - Tablolar: `categories`, `products` (category_id FK), `hero`, `newsletter_subscribers`.
+- **İçerik kaynağı:** `data/content.js` artık DB'den okuyor (`getCategories`, `getFeaturedProducts`, `getHero`, `addSubscriber`). Yeni dinamik içerik eklerken aynı dosyaya DB sorgusu olarak ekle.
+- `/health` endpoint'i DB bağlantı durumunu döner.
+- **Hedef:** "Her şey bu veritabanı ile yönetilecek." İleride eklenecek tüm dinamik içerik (ürün detay sayfaları, kategoriler, siparişler, kullanıcılar vb.) bu DB üzerinden yönetilecek.
 
 ## Proje yapısı
 ```

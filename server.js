@@ -34,8 +34,23 @@ app.get('/', async (req, res, next) => {
       hero,
       categories,
       products,
+      subscribed: req.query.subscribed === '1',
       year: new Date().getFullYear(),
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Newsletter signup -> stored in the DB (newsletter_subscribers)
+app.post('/newsletter', async (req, res, next) => {
+  try {
+    const email = String(req.body.email || '').trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (valid) {
+      await content.addSubscriber(email);
+    }
+    res.redirect('/?subscribed=1#newsletter');
   } catch (err) {
     next(err);
   }

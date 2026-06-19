@@ -219,6 +219,12 @@ a { color: inherit; text-decoration: none; }
 }
 .newsletter-form input::placeholder { color: rgba(255,255,255,.5); }
 .newsletter-form .btn-dark { background: #fff; color: var(--ink); }
+.newsletter-success {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: #fff;
+  margin-top: 8px;
+}
 
 /* ---------- Footer ---------- */
 .site-footer {
